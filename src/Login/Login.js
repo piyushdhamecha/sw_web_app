@@ -1,4 +1,5 @@
-import React from "react"
+import React, { useState } from "react"
+import Alert from "@material-ui/lab/Alert"
 import Avatar from "@material-ui/core/Avatar"
 import Button from "@material-ui/core/Button"
 import CssBaseline from "@material-ui/core/CssBaseline"
@@ -7,6 +8,12 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined"
 import Typography from "@material-ui/core/Typography"
 import { makeStyles } from "@material-ui/core/styles"
 import Container from "@material-ui/core/Container"
+import CircularProgress from "@material-ui/core/CircularProgress"
+import { green } from "@material-ui/core/colors"
+
+import { withRouter } from "react-router-dom"
+
+import { login } from "../apiClient"
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -14,6 +21,10 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center"
+  },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: "relative"
   },
   avatar: {
     margin: theme.spacing(1),
@@ -25,11 +36,40 @@ const useStyles = makeStyles(theme => ({
   },
   submit: {
     margin: theme.spacing(3, 0, 2)
+  },
+  buttonProgress: {
+    color: green[500],
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -12,
+    marginLeft: -12
   }
 }))
-
-export default function SignIn() {
+/* eslint react/prop-types: 0 */
+/* eslint no-debugger: 0 */
+const SignIn = ({ history }) => {
   const classes = useStyles()
+  const [isSubmitting, setIsSumitting] = useState(false)
+  const [errorMsg, setErrorMsg] = useState()
+  const [credentials, setCredentials] = useState()
+
+  const handleSubmitClick = () => {
+    setIsSumitting(true)
+    login(credentials).then(loginErrorMsg => {
+      debugger
+      setIsSumitting(false)
+      if (!loginErrorMsg) {
+        history.push("/planets")
+      }
+
+      setErrorMsg(loginErrorMsg)
+    })
+  }
+
+  const handleFieldChange = fieldName => e => {
+    setCredentials({ [fieldName]: e.target.value })
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -41,40 +81,49 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoComplete="username"
-            autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
+        {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          id="username"
+          label="Username"
+          name="username"
+          autoComplete="username"
+          autoFocus
+          onChange={handleFieldChange("username")}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          name="password"
+          label="Password"
+          type="password"
+          id="password"
+          autoComplete="current-password"
+          onChange={handleFieldChange("password")}
+        />
+        <div className={classes.wrapper}>
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleSubmitClick}
+            disabled={isSubmitting}
           >
             Sign In
           </Button>
-        </form>
+          {isSubmitting && (
+            <CircularProgress size={24} className={classes.buttonProgress} />
+          )}
+        </div>
       </div>
     </Container>
   )
 }
+
+export default withRouter(SignIn)
