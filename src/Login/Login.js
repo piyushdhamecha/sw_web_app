@@ -46,21 +46,22 @@ const useStyles = makeStyles(theme => ({
     marginLeft: -12
   }
 }))
-/* eslint react/prop-types: 0 */
-/* eslint no-debugger: 0 */
+
 const SignIn = ({ history }) => {
   const classes = useStyles()
   const [isSubmitting, setIsSumitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState()
-  const [credentials, setCredentials] = useState()
+  const [username, setUsername] = useState()
+  const [password, setPassword] = useState()
 
   const handleSubmitClick = () => {
     setIsSumitting(true)
-    console.log({ login })
-    login(credentials).then(loginErrorMsg => {
-      debugger
+
+    login({ username, password }).then(loginErrorMsg => {
       setIsSumitting(false)
+
       if (!loginErrorMsg) {
+        localStorage.setItem("username", username)
         history.push("/planets")
       }
 
@@ -68,8 +69,12 @@ const SignIn = ({ history }) => {
     })
   }
 
-  const handleFieldChange = fieldName => e => {
-    setCredentials({ [fieldName]: e.target.value })
+  const handleUsernameChange = e => {
+    setUsername(e.target.value)
+  }
+
+  const handlePasswordChange = e => {
+    setPassword(e.target.value)
   }
 
   return (
@@ -93,7 +98,7 @@ const SignIn = ({ history }) => {
           name="username"
           autoComplete="username"
           autoFocus
-          onChange={handleFieldChange("username")}
+          onChange={handleUsernameChange}
         />
         <TextField
           variant="outlined"
@@ -105,7 +110,7 @@ const SignIn = ({ history }) => {
           type="password"
           id="password"
           autoComplete="current-password"
-          onChange={handleFieldChange("password")}
+          onChange={handlePasswordChange}
         />
         <div className={classes.wrapper}>
           <Button
