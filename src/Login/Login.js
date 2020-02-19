@@ -56,6 +56,7 @@ const SignIn = ({ history }) => {
 
   const handleSubmitClick = () => {
     setIsSumitting(true)
+    console.log({ login })
     login(credentials).then(loginErrorMsg => {
       debugger
       setIsSumitting(false)
