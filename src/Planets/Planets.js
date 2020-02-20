@@ -15,7 +15,7 @@ import Tooltip from "@material-ui/core/Tooltip"
 import * as d3 from "d3"
 import { searchPlanet } from "../apiClient"
 import "./Planets.css"
-import PlanetDetail from "./PlanetDetail"
+// import PlanetDetail from "./PlanetDetail"
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -72,14 +72,15 @@ const Planets = ({ history }) => {
   const classes = useStyles()
   const [isFetching, setIsFetching] = useState(false)
   const [planetsData, setPlanetsData] = useState()
-  const [open, setOpen] = React.useState(false)
+  // const [open, setOpen] = React.useState(false)
 
-  const handleClickOpen = data => () => {
-    setOpen(true)
-  }
-  const handleClose = () => {
-    setOpen(false)
-  }
+  // const handleClickOpen = data => () => {
+  //   setOpen(true)
+  // }
+
+  // const handleClose = () => {
+  //   setOpen(false)
+  // }
 
   const handleLogoutClick = () => {
     localStorage.removeItem("username")
@@ -147,14 +148,14 @@ const Planets = ({ history }) => {
                   width: `${n.x1 - n.x0}px`,
                   height: `${n.y1 - n.y0}px`
                 }}
-                onClick={handleClickOpen(n.data)}
+                // onClick={handleClickOpen(n.data)}
               >
                 {n.data.name}
               </div>
             </Tooltip>
           ))}
         </div>
-        <PlanetDetail open={open} onClose={handleClose} data={planetDetai} />
+        {/* <PlanetDetail open={open} onClose={handleClose} data={planetDetai} /> */}
       </div>
     )
     // return JSON.stringify(planetsData)
