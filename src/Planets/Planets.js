@@ -1,5 +1,6 @@
 import _ from "lodash"
 import React, { useState } from "react"
+import { withRouter } from "react-router-dom"
 
 import { fade, makeStyles } from "@material-ui/core/styles"
 import AppBar from "@material-ui/core/AppBar"
@@ -9,10 +10,12 @@ import Button from "@material-ui/core/Button"
 import SearchIcon from "@material-ui/icons/Search"
 import InputBase from "@material-ui/core/InputBase"
 import CircularProgress from "@material-ui/core/CircularProgress"
+import Tooltip from "@material-ui/core/Tooltip"
 
-import { withRouter } from "react-router-dom"
-
+import * as d3 from "d3"
 import { searchPlanet } from "../apiClient"
+import "./Planets.css"
+import PlanetDetail from "./PlanetDetail"
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -69,6 +72,14 @@ const Planets = ({ history }) => {
   const classes = useStyles()
   const [isFetching, setIsFetching] = useState(false)
   const [planetsData, setPlanetsData] = useState()
+  const [open, setOpen] = React.useState(false)
+
+  const handleClickOpen = data => () => {
+    setOpen(true)
+  }
+  const handleClose = () => {
+    setOpen(false)
+  }
 
   const handleLogoutClick = () => {
     localStorage.removeItem("username")
@@ -95,7 +106,58 @@ const Planets = ({ history }) => {
       return <CircularProgress />
     }
 
-    return JSON.stringify(planetsData)
+    if (!planetsData) {
+      return null
+    }
+    console.log({ planetsData })
+    const transformedData = {
+      children: _.map(planetsData, item => ({
+        ...item,
+        value: item.population
+      }))
+    }
+
+    // const root = d3.layout.hierarchy(transformedData)
+    const root = d3.hierarchy(transformedData)
+    root.sum(d => d.value)
+
+    console.log({ root })
+    const treemap = d3.treemap().size([960, 500])(root)
+    console.log({ treemap, root })
+    debugger
+    return (
+      <div>
+        <div
+          style={{
+            position: "relative",
+            width: "960px",
+            height: "500px",
+            left: "10px",
+            top: "10px"
+          }}
+        >
+          {treemap.children.map(n => (
+            <Tooltip title={n.data.name}>
+              <div
+                className="node"
+                style={{
+                  background: "silver",
+                  left: `${n.x0}px`,
+                  top: `${n.y0}px`,
+                  width: `${n.x1 - n.x0}px`,
+                  height: `${n.y1 - n.y0}px`
+                }}
+                onClick={handleClickOpen(n.data)}
+              >
+                {n.data.name}
+              </div>
+            </Tooltip>
+          ))}
+        </div>
+        <PlanetDetail open={open} onClose={handleClose} data={planetDetai} />
+      </div>
+    )
+    // return JSON.stringify(planetsData)
   }
 
   return (
